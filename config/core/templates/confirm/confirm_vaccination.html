@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Подтверждение добавления вакцинации{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/confirm.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="main">
+  <h1>Подтвердите действие &middot; Добавление вакцинации</h1>
+  <div style="font-size: 18px;">
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        {{ form.code.label_tag }}
+        {{ form.code }}
+      </div>
+      <button type="submit">Подтвердить</button>
+    </form>
+    {% if error %}
+    <p>Ошибка: {{ error }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

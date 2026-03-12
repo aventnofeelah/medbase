@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Код подтверждения{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/codes.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="main">
+  <h1>Ваши коды подтверждения</h1>
+  <div id="obj-types">
+    <a href="{% url 'surgery_code' request.user.id %}">
+      <div class="obj-type">
+        <p>Операция</p>
+      </div>
+    </a>
+    <a href="{% url 'allergy_code' request.user.id %}">
+      <div class="obj-type">
+        <p>Аллергия</p>
+      </div>
+    </a>
+    <a href="{% url 'disease_code' request.user.id %}"> 
+      <div class="obj-type">
+        <p>Болезнь</p>
+      </div>
+    </a>
+    <a href="{% url 'visit_code' request.user.id %}">
+      <div class="obj-type">
+        <p>Посещение</p>
+      </div>
+    </a>
+    <a href="{% url 'vaccination_code' request.user.id %}">
+      <div class="obj-type">
+        <p>Вакцинация</p>
+      </div>
+    </a>
+    <a href="{% url 'drug_code' request.user.id %}">
+      <div class="obj-type">
+        <p>Препарат</p>
+      </div>
+    </a>
+    <a href="{% url 'test_code' request.user.id %}">
+      <div class="obj-type">
+        <p>Анализ/Исследование</p>
+      </div>
+    </a>
+  </div>
+</div>
+{% endblock %}

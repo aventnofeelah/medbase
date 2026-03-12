@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Добавить вакцинацию {% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/add/vaccination_add.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="main">
+  <h1 style="text-align: center;">Добавление вакцинации</h1>
+  <h2 style="text-align: center;">{{ user.first_name }} {{ user.last_name }} &middot; {{ request.user.medcenter.name }}</h2>
+  <hr style="width: 10%; margin: 1% auto; border: 3px solid rgb(136, 176, 75);">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+    </div>
+    <div class="form-group">
+      {{ form.vac_name.label_tag }}
+      {{ form.vac_name }}
+    </div>
+    <div class="form-group">
+      {{ form.desc.label_tag }}
+      {{ form.desc }}
+    </div>
+    <div class="form-group">
+      {{ form.date.label_tag }}
+      {{ form.date }}
+    </div>
+    <button id="submit-btn" type="submit">Добавить</button>
+  </form>
+</div>
+{% endblock %}

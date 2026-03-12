@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Добавить анализ/исследование {% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/add/test_add.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="main">
+  <h1 style="text-align: center;">Добавление анализа/исследования</h1>
+  <h2 style="text-align: center;">{{ user.first_name }} {{ user.last_name }} &middot; {{ request.user.medcenter.name }}</h2>
+  <hr style="width: 10%; margin: 1% auto; border: 3px solid rgb(136, 176, 75);">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+    </div>
+    <div class="form-group">
+      {{ form.type.label_tag }}
+      {{ form.type }}
+    </div>
+    <div class="form-group">
+      {{ form.desc.label_tag }}
+      {{ form.desc }}
+    </div>
+    <div class="form-group">
+      {{ form_file.files.label_tag }}
+      {{ form_file.files }}
+    </div>
+    <button id="submit-btn" type="submit">Добавить</button>
+  </form>
+  {% if form.non_field_errors %}
+      <div class="error">
+          {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+          {% endfor %}
+      </div>
+  {% endif %}
+  {% if form_file.non_field_errors %}
+      <div class="error">
+          {% for error in form_file.non_field_errors %}
+              <p>{{ error }}</p>
+          {% endfor %}
+      </div>
+  {% endif %}
+</div>
+{% endblock %}

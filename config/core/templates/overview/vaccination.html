@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Болезнь{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/vaccination.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="vaccination-info">
+    <h1>{{ vaccination.name }}</h1>
+    <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>
+    <p>Производитель вацины: {{ vaccination.vac_name }}</p>
+    <p>Медцентр: <a href="{% url 'medcenter' vaccination.medcenter.id %}">{{ vaccination.medcenter.name }}</a> &middot; {{ vaccination.medcenter.link }}</p>
+    <p>Описание: {{ vaccination.desc }}</p>
+    <p>Дата: {{ vaccination.date }}</p>
+</div>
+<h1 style="text-align: center;">Все вакцинации</h1>
+<div id="vaccinations">
+{% for vac in vaccinations %}
+<div id="vaccination">
+  {% if vac.id == vaccination.id %}
+  <p><b>{{ vac.name }}</b> (Текущая)</p>
+  <p>{{ vac.date }}</p>
+  {% else %}
+  <p><b>{{ vac.name }}</b></p>
+  <p>{{ vac.date }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %} 

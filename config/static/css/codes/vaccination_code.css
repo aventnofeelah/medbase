@@ -1,0 +1,30 @@
+#main{
+    width: 70%;
+    margin: 1% auto;
+}
+#main h1{
+     text-align: center;
+}
+#main button{
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    background: white;
+    font-size: 18px;
+    padding: 1%;
+    border-radius: 25px;
+    width: 30%;
+    margin: 1% auto;
+    display: block;
+    transition: box-shadow 0.3s;
+    cursor: pointer;
+}
+#main button:hover{
+    box-shadow: 0 2px 10px rgb(136, 176, 75);
+}
+#code{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 3%;
+    background: white;
+    font-size: 18px;
+}

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Профиль{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="main-info">
+  <div id="photo-info">
+    <h1>Данные <img src="{% static 'images/user_data.png' %}" style="vertical-align: middle;"></h1>
+    <div style="display: flex; gap: 20px;">
+      <div id="photo">
+
+      </div>
+      <div id="info">
+        <p>ФИО: {{ user.first_name }} {{ user.last_name }} ({{ userh.get_sex_display }})</p>
+        <p>Дата рождения: {{ user.birth }} ({{ user.get_age }} лет)</p>
+        <p>ИИН: {{ user.iin }}</p>
+        <p>Телефон: {{ user.phone }}</p>
+        {% if user.email %}
+        <p>Почта: {{ user.email }}</p>
+        {% endif %}
+        <p>Город: {{ user.city }}</p>
+        <hr style="width: 20%; margin-top: 1%; border: 1px solid rgb(136, 176, 75);">
+        <p>Группа крови: {{ userh.get_blood_group_display }} ({{ userh.get_rhesus_factor_display }})</p>
+        {% if not userh.bad_habits %}
+        <p>Нет вредных привычек</p>
+        {% else %}
+        <p>{{ userh.bad_habits }}</p>
+        {% endif %}
+        {% if not userh.psychoneurological_dispensary %}
+        <p>Не состоит на учете в психоневрологическом диспансере</p>
+        {% else %}
+        <p>{{ userh.psychoneurological_dispensary.name }}</p>
+        {% endif %}
+        {% if not userh.rehab %}
+        <p>Не состоит на учете в реабилитацинном центре</p>
+        {% else %}
+        <p>{{ userh.rehab }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div id="surgeries">
+    <h1 class="title-with-icon">
+      <span>
+        Операции <img src="{% static 'images/rib_cage.png' %}" style="vertical-align: middle;">
+      </span>
+      {% if request.user.role == 'doc' and request.user.medcenter and request.user != user %}
+      <a href="{% url 'surgery_add' user.id %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%}
+    </h1>
+    {% if not surgeries %}
+    <p>Нет перенесенных операций</p>
+    {% else %}
+    {% for surg in surgeries %}
+    <a href="{% url 'surgery' user.id surg.id %}">
+      <div id="surgery">
+        <b>{{ surg.name }}</b>
+        <p>{{ surg.date }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+  <div id="allergies">
+    <h1 class="title-with-icon">
+      <span>Аллергии <img src="{% static 'images/allergy.png' %}" style="vertical-align: middle;"></span>
+      {% if request.user.role == 'doc' and request.user.medcenter and request.user != user %}
+      <a href="{% url 'allergy_add' user.id %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%}
+    </h1>
+    {% if not allergies %}
+    <p>Нет аллергических реакций</p>
+    {% else %}
+    {% for alg in allergies %}
+    <a href="{% url 'allergy' user.id alg.id %}">
+      <div id="allergy">
+        <b>{{ alg.name }}</b>
+        <p>{{ alg.get_type_localization_display }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+<div id="health-info">
+  <div id="diseases">
+    <h1 style="display: flex; align-items: center; justify-content: space-between;">
+      <span>
+        Болезни 
+        <img src="{% static 'images/disease.png' %}" style="vertical-align: middle;">
+      </span>
+      <div>
+        {% if request.user.role == 'doc' and request.user.medcenter and request.user != user%}
+        <a href="{% url 'disease_add' user.id %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+        {% endif %}
+        <img id="info-img" src="{% static 'images/info.png' %}" style="vertical-align: middle;">
+        <div id="diseases-info">
+          <p>Венерические и кожные заболевания видимы только для врачей с такой специализацией.</p>
+        </div>
+      </div>
+    </h1>
+    {% if not diseases %}
+    <p>Нет зарегистрированных болезней</p>
+    {% else %}
+    {% for dis in diseases %}
+    <a href="{% url 'disease' user.id dis.id %}">
+      <div id="disease">
+        <b>{{ dis.name }}</b>
+        <p>{{ dis.get_type_process_display }} &middot; {{ dis.icd_code }} &middot; {{ dis.get_type_stimulant_display }} &middot; {{ dis.get_type_localization_display }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+  <div id="vaccinations">
+    <h1 class="title-with-icon">
+      <span>Вакцинации <img src="{% static 'images/vaccine.png' %}" style="vertical-align: middle;"></span>
+      {% if request.user.role == 'doc' and request.user.medcenter and request.user != user %}
+      <a href="{% url 'vaccination_add' user.id %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%}
+    </h1>
+    {% if not vaccinations %}
+    <p>Нет зарегистрированных вакцинациий</p>
+    {% else %}
+    {% for vac in vaccinations %}
+    <a href="{% url 'vaccination' user.id vac.id %}">
+      <div id="vaccination">
+        <b>{{ vac.name }}</b>
+        <p>{{ vac.vac_name }} &middot; {{ vac.date }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+  <div id="visits">
+    <h1 class="title-with-icon">
+      <span>Посещения <img src="{% static 'images/clinic.png' %}" style="vertical-align: middle;"></span>
+      {% if request.user.role == 'doc' and request.user.medcenter and request.user != user %}
+      <a href="{% url 'visit_add' user.id %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%}
+    </h1>
+    {% if not visits %}
+    <p>Нет зарегистрированных посещений</p>
+    {% else %}
+    {% for vis in visits %}
+    <a href="{% url 'visit' user.id vis.id %}">
+      <div id="visit">
+        <b>{{ vis.cause }}</b>
+        <p>{{ vis.medcenter.name }} &middot; {{ vis.date }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+<div id="health-info-2">
+  <div id="insurance">
+    <h1 class="title-with-icon">
+      <span>Страховка <img src="{% static 'images/insurance.png' %}" style="vertical-align: middle;"></span>
+      <!-- {% if request.user.role == 'doc' and request.user.medcenter %}
+      <a href="#"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%} -->
+    </h1>
+    {% if insurance %}
+    <p>Номер полиса: {{ insurance.policy_number }}</p>
+    <p>Страховая компания {{ insurance.insurance_company.name }}</p>
+    <p>Тип страховки: {{ insurance.get_insurance_type_display }}</p>
+    <p>Дата выдачи: {{ insurance.issue_date }}</p>
+    <p>Дата окончания: {{ insurance.expiry_date }}</p>
+    <p>Сумма покрытия: {{ insurance.coverage_amount }}</p>
+    <p>Условия страховки: {{ insurance.conditions }}</p>
+    {% else %}
+    <p>Страховка не указана</p>
+    {% endif %}
+  </div>
+  <div id="drugs">
+    <h1 class="title-with-icon" style="display: flex; align-items: center; justify-content: space-between;">
+      <span>
+        Препараты 
+        <img src="{% static 'images/pill.png' %}" style="vertical-align: middle;">
+      </span>
+      {% if request.user.role == 'doc' and request.user.medcenter and request.user != user %}
+      <a href="{% url 'drug_add' user.id  %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%}
+    </h1>
+    {% if not drugs %}
+    <p>Нет зарегистрированных принимаемых препаратов</p>
+    {% else %}
+    {% for drg in drugs %}
+    <a href="{% url 'drug' user.id drg.id %}">
+      <div id="drug">
+        <b>{{ drg.name }}</b>
+        <p>{{ drg.disease.name }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+  <div id="tests">
+    <h1 class="title-with-icon" style="display: flex; align-items: center; justify-content: space-between;">
+      <span>
+        Анализы/Исследования 
+        <img src="{% static 'images/test.png' %}" style="vertical-align: middle;">
+      </span>
+      {% if request.user.role == 'doc' and request.user.medcenter and request.user != user %}
+      <a href="{% url 'test_add' user.id %}"><img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></a>
+      {% endif%}
+    </h1>
+    {% if not tests %}
+    <p>Нет результатов анализов/исследований</p>
+    {% else %}
+    {% for tst in tests %}
+    <a href="{% url 'test' user.id tst.id %}">
+      <div id="test">
+        <b>{{ tst.name }}</b>
+        <p>{{ tst.medcenter.name }} &middot; {{ tst.get_type_display }}</p>
+      </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

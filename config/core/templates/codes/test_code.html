@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Код подтверждения &middot; Анализ/Исследование{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/codes/test_code.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="main">
+  <h1>Ваш код подтверждения &middot; Анализ/Исследование</h1>
+  <button onclick="location.reload(true)">Обновить <img src="{% static 'images/reload.png' %}" style="vertical-align: middle;"></button>
+  <div id="code">
+    {% if code %}
+    <p>Код подтверждения: {{ code }}</p>
+    <p>Название: {{ data.name }}</p>
+    <p>Тип: {{ data.disease }}</p>
+    <p>Медцентр: {{ data.medcenter.name }}</p>
+    <p>Описание: {{ data.desc }}</p>
+    <p>Файлы: {{ data.files }}</p>
+    <p>Время: {{ data.created_at }}</p>
+    {% else %}
+    <p>Нет кодов подтверждения. Попробуйте обновить страницу.</p>
+    {% endif%}
+  </div>
+</div>
+{% endblock %}

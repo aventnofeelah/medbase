@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Анализ{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/test.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="test-info">
+    <h1>{{ test.name }}</h1>
+    <p>Медцентр: {{ test.medcenter.name }}</p>
+    <p>Тип анализа: {{ test.get_type_display }}</p>
+    <p>Описание: {{ test.desc }}</p>
+</div>
+{% if files %}
+<h1 style="text-align: center;">Файлы</h1>
+<div id="files">
+    {% for fl in files %}
+    <div id="file-div">
+      <p><b>{{ fl.name }}</b></p>
+      <p>{{ fl.extension }} &middot; {{ fl.file_size }}</p>
+      <a style="text-decoration: none; color:black;" href="{{ fl.file.url }}" download>Загрузить<img src="{% static 'images/download.png' %}" style="vertical-align: middle;"></a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+<h1 style="text-align: center;">Все анализы</h1>
+<div id="tests">
+{% for tst in tests %}
+<div id="test">
+  {% if tst.id == test.id %}
+  <p><b>{{ tst.name }}</b> (Текущая)</p>
+  <p>{{ tst.medcenter.name }} &middot; {{ tst.get_type_display }}</p>
+  {% else %}
+  <p><b>{{ tst.name }}</b></p>
+  <p>{{ tst.medcenter.name }} &middot; {{ tst.get_type_display }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

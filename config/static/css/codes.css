@@ -1,0 +1,29 @@
+#main{
+    width: 70%;
+    margin: 1% auto;
+}
+#obj-types{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 2%;
+    gap: 15px;
+}
+#obj-types a{
+    text-decoration: none;
+    color: black;
+}
+.obj-type{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 3%;
+    background: white;
+    font-size: 18px;
+    transition: 0.3s box-shadow;
+    text-align: center;
+}
+.obj-type:hover{
+    box-shadow: 0 2px 10px rgb(136, 176, 75);
+}
+#main h1{
+     text-align: center;
+}

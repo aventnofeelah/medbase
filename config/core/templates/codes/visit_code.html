@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Код подтверждения &middot; Посещение{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/codes/visit_code.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="main">
+  <h1>Ваш код подтверждения &middot; Посещение</h1>
+  <button onclick="location.reload(true)">Обновить <img src="{% static 'images/reload.png' %}" style="vertical-align: middle;"></button>
+  <div id="code">
+    {% if code %}
+    <p>Код подтверждения: {{ code }}</p>
+    <p>Причина посещения: {{ data.cause }}</p>
+    <p>Описание: {{ data.desc }}</p>
+    {% else %}
+    <p>Нет кодов подтверждения. Попробуйте обновить страницу.</p>
+    {% endif%}
+  </div>
+</div>
+{% endblock %}

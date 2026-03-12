@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Действие{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/action.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'home' %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="main">
+{% if action.surgery %}
+<h1>Операция &middot; {{ action.surgery.name }}</h1>
+<a href="{% url 'surgery' action.patient.id action.surgery.id %}">Ссылка на объект</a>
+
+{% elif action.allergy %}
+<h1>Аллергия &middot; {{ action.name }}</h1>
+<a href="{% url 'allergy' action.patient.id action.allergy.id %}">Ссылка на объект</a>
+
+{% elif action.disease %}
+<h1>Болезнь &middot; {{ action.name }}</h1>
+
+{% elif action.vaccination %}
+<h1>Вакцинация &middot; {{ action.name }}</h1>
+<a href="{% url 'vaccination' action.patient.id action.vaccination.id %}">Ссылка на объект</a>
+
+{% elif action.visit %}
+<h1>Посещение &middot; {{ action.name }}</h1>
+
+{% elif action.drug %}
+<h1>Препарат &middot; {{ action.name }}</h1>
+
+{% elif action.test %}
+<h1>Анализы &middot; {{ action.name }}</h1>
+{% endif %}
+<p>Кем добавлено: {{ action.user.first_name }} {{ action.user.last_name }} &middot; {{ action.user.iin }} </p>
+<p>Кому: {{ action.patient.first_name }} {{ action.patient.last_name }} &middot; {{ action.patient.iin }}</p>
+<p>Медцентр: <a href="{% url 'medcenter' action.medcenter.id %}">{{ action.medcenter.name }}</a> &middot; {{ action.medcenter.link }}</p>
+<p>Дата добавления: {{ action.created_at }}</p>
+</div>
+<h1 style="text-align: center;">Все действия</h1>
+<div id="actions">
+{% for ac in actions %}
+<a href="{% url 'action' request.user.id ac.id%}">
+  <div id="action">
+    {% if ac.surgery %}
+    <b>Операция &middot; {{ ac.surgery.name }}</b>
+    {% endif %}
+
+    {% if ac.allergy %}
+    <b>Аллергия &middot; {{ ac.allergy.name }}</b>
+    {% endif %}
+
+    {% if ac.disease %}
+    <b>Болезнь &middot; {{ ac.disease.name }}</b>
+    {% endif %}
+
+    {% if ac.vaccination %}
+    <b>Вакцинация &middot; {{ ac.vaccination.name }}</b>
+    {% endif %}
+
+    {% if ac.visit %}
+    <b>Посещение &middot; {{ ac.visit.name }}</b>
+    {% endif %}
+
+    {% if ac.drug %}
+    <b>Препарат &middot; {{ ac.drug.name }}</b>
+    {% endif %}
+
+    {% if ac.test %}
+    <b>Анализы &middot; {{ac.test.name }}</b>
+    {% endif %}
+    <p>Кем добавлено: {{ action.user.first_name }} {{ action.user.last_name }}</p>
+    <p>Кому: {{ action.patient.first_name }} {{ action.patient.last_name }}</p>
+    {% if ac.id == action.id %}
+    <b>Текущая</b>
+    {% endif %}
+  </div>
+</a>
+{% endfor %}
+</div>
+{% endblock %}

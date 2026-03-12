@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Операция{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/surgery.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="surg-info">
+    <h1>{{ surgery.name }}</h1>
+    <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>
+    <p>Болезнь: {{ surgery.disease.name }}</p>
+    <p>Медцентр: <a href="{% url 'medcenter' surgery.medcenter.id %}">{{ surgery.medcenter.name }}</a> &middot; {{ surgery.medcenter.link }}</p>
+    <p>Дата: {{ surgery.date }}</p>
+    <p>Описание: {{ surgery.desc }}</p>
+</div>
+<h1 style="text-align: center;">Все операции</h1>
+<div id="surgeries">
+{% for srg in surgeries %}
+<div id="surgery">
+  {% if srg.id == surgery.id %}
+  <p><b>{{ srg.name }}</b> (Текущая)</p>
+  <p>{{ srg.date }}</p>
+  {% else %}
+  <p><b>{{ srg.name }}</b></p>
+  <p>{{ srg.date }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

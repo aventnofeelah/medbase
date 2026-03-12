@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Аллергия{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/allergy.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="allergy-info">
+    <h1>{{ allergy.name }}</h1>
+    <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>
+    <p>Медцентр: <a href="{% url 'medcenter' allergy.medcenter.id %}">{{ allergy.medcenter.name }}</a> &middot; {{ allergy.medcenter.link }}</p>
+    <p>Код по МКБ-10/11: {{ allergy.icd_code }}</p>
+    <p>Происхождение и природа: {{ allergy.get_type_origin_display }}</p>
+    <p>Локализация: {{ allergy.get_type_localization_display }}</p>
+    <p>Возбудитель: {{ allergy.get_type_stimulant_display }}</p>
+    <p>Состояние: {{ allergy.get_type_process_display }}</p>
+    {% if drugs %}
+    <p>Принимаемые препараты: </p>
+    <ul>
+      {% for drg in drugs %}
+      <li>{{ drg.name }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <p>Описание: {{ allergy.desc }}</p>
+</div>
+<h1 style="text-align: center;">Все аллергии</h1>
+<div id="allergies">
+{% for alg in allergies %}
+<div id="allergy">
+  {% if alg.id == allergy.id %}
+  <p><b>{{ alg.name }}</b> (Текущая)</p>
+  <p>{{ alg.get_type_localization_display }}</p>
+  {% else %}
+  <p><b>{{ alg.name }}</b></p>
+  <p>{{ alg.get_type_localization_display }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

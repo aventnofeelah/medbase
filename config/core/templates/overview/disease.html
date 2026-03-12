@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Болезнь{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/disease.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="disease-info">
+    <h1>{{ disease.name }}</h1>
+    <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>
+    <p>Медцентр: <a href="{% url 'medcenter' disease.medcenter.id %}">{{ disease.medcenter.name }}</a> &middot; {{ disease.medcenter.link }}</p>
+    <p>Код по МКБ-10/11: {{ disease.icd_code }}</p>
+    <p>Происхождение и природа: {{ disease.get_type_origin_display }}</p>
+    <p>Локализация болезни: {{ disease.get_type_localization_display }}</p>
+    <p>Возбудитель: {{ disease.get_type_stimulant_display }}</p>
+    <p>Состояние: {{ disease.get_type_process_display }}</p>
+    {% if drugs %}
+    <p>Принимаемые препараты: </p>
+    <ul>
+      {% for drg in drugs %}
+      <li>{{ drg.name }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <p>Описание: {{ disease.desc }}</p>
+</div>
+<h1 style="text-align: center;">Все болезни</h1>
+<div id="diseases">
+{% for dis in diseases %}
+<div id="disease">
+  {% if dis.id == disease.id %}
+  <p><b>{{ dis.name }}</b> (Текущая)</p>
+  <p>{{ dis.get_type_process_display }} &middot; {{ dis.icd_code }} &middot; {{ dis.get_type_stimulant_display }} &middot; {{ dis.get_type_localization_display }}</p>
+  {% else %}
+  <p><b>{{ srg.name }}</b></p>
+  <p>{{ dis.get_type_process_display }} &middot; {{ dis.icd_code }} &middot; {{ dis.get_type_stimulant_display }} &middot; {{ dis.get_type_localization_display }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

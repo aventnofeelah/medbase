@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Вход в аккаунт{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="login-div">
+  <h1>Вход в аккаунт <img src="{% static 'images/login.png' %}" style="vertical-align: middle;"></h1>
+  <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        {{ form.iin_or_phone.label_tag }}
+        {{ form.iin_or_phone }}
+      </div>
+      <div class="form-group">
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        <a href="#" id="forget-password">Забыли пароль?</a>
+      </div>
+      {% if form.non_field_errors %}
+        <div class="form-errors">
+          {% for error in form.non_field_errors %}
+            <p style="color: red; font-size: 18px; text-align: center;">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <button type="submit" id="login-submit">Войти</button>
+    </form>
+</div>
+{% endblock %}

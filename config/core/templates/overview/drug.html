@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Препарат{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/drug.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="drug-info">
+    <h1>{{ drug.name }}</h1>
+    <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>
+    <p>Медцентр: <a href="{% url 'medcenter' drug.medcenter.id %}">{{ drug.medcenter.name }}</a> &middot; {{ drug.medcenter.link }}</p>
+    <p>Применяется для: {{ diseases_list|join:", " }}</p>
+    <p>Примечание: {{ drug.desc }}</p>
+</div>
+<h1 style="text-align: center;">Все препараты</h1>
+<div id="drugs">
+{% for drg in drugs %}
+<div id="drug">
+  {% if drg.id == drug.id %}
+  <p><b>{{ drg.name }}</b> (Текущая)</p>
+  <p>{{ drg.disease.name }}</p>
+  {% else %}
+  <p><b>{{ drg.name }}</b></p>
+  <p>{{ drg.disease.name }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

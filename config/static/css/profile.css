@@ -1,0 +1,279 @@
+#main-info{
+    width: 92%;
+    margin: 1% auto;
+    display: flex;
+    gap: 15px;
+    max-height: 350px;
+}
+#photo-info{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 40%;
+}
+#surgeries{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 30%;
+    overflow-y: auto;
+}
+#surgeries a{
+    text-decoration: none;
+    color: black;
+}
+#surgeries p{
+    font-size: 18px;
+}
+#surgery{
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    padding: 2%;
+    margin-top: 1%;
+    border: 2px solid black;
+}
+#surgery:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#photo{
+    border: 1px solid black;
+    height: 250px;
+    width: 25%;
+    border-radius: 25px;
+    margin-top: 1%;
+}
+#info{
+    font-size: 18px;
+}
+/* alt design */
+/* #allergies{
+    border-radius: 25px;
+    padding-left: 1%;
+    padding-right: 1%;
+    width: 30%;
+    overflow-y: auto;
+}
+#allergies a{
+    text-decoration: none;
+    color: black;
+}
+#allergies p{
+    font-size: 18px;
+}
+#allergy{
+    font-size: 18px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 3%;
+    margin-top: 1%;
+    background: white;
+    transition: box-shadow 0.3s;
+}
+#allergy:hover{
+    box-shadow: 0 2px 10px rgb(136, 176, 75);
+} */
+#allergies{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 30%;
+    overflow-y: auto;
+}
+#allergies a{
+    text-decoration: none;
+    color: black;
+}
+#allergies p{
+    font-size: 18px;
+}
+#allergy{
+    font-size: 18px;
+    border: 2px solid black;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    padding: 2%;
+    margin-top: 1%;
+}
+#allergy:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#health-info{
+    width: 92%;
+    margin: 1% auto;
+    display: flex;
+    gap: 15px;
+    max-height: 350px;
+}
+#diseases{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 40%;
+    overflow-y: auto;
+}
+#diseases p{
+    font-size: 18px;
+}
+#diseases a{
+    text-decoration: none;
+    color: black;
+}
+#disease{
+    font-size: 18px;
+    border: 2px solid black;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 2%;
+    margin-top: 1%;
+}
+#disease:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#diseases-info{
+    position: absolute;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 1%;
+    background: white;
+    border-radius: 25px;
+    display: none;
+    font-weight: normal;
+}
+#info-img:hover + #diseases-info{
+    display: block;
+}
+#vaccinations{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 30%;
+    overflow-y: auto;
+}
+#vaccination{
+    font-size: 18px;
+    border: 2px solid black;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    padding: 2%;
+    margin-top: 1%;
+}
+#vaccination:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#vaccinations p{
+    font-size: 18px;
+}
+#vaccinations a{
+    text-decoration: none;
+    color: black;
+}
+#visits{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 30%;
+    overflow-y: auto;
+}
+#visits p{
+    font-size: 18px;
+}
+#visits a{
+    text-decoration: none;
+    color: black;
+}
+#visit{
+    font-size: 18px;
+    border: 2px solid black;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 2%;
+    margin-top: 1%;
+}
+#visit:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#health-info-2{
+    width: 92%;
+    margin: 1% auto;
+    display: flex;
+    gap: 15px;
+    max-height: 350px;
+}
+#drugs{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 30%;
+    overflow-y: auto;
+}
+#drugs a{
+    text-decoration: none;
+    color: black;
+}
+#drugs p{
+    font-size: 18px;
+}
+#drug{
+    font-size: 18px;
+    border: 2px solid black;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 2%;
+    margin-top: 1%;
+}
+#drug:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#tests{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 30%;
+    overflow-y: auto;
+}
+#tests a{
+    text-decoration: none;
+    color: black;
+}
+#tests p{
+    font-size: 18px;
+}
+#test{
+    font-size: 18px;
+    border: 2px solid black;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 2%;
+    margin-top: 1%;
+}
+#test:hover{
+    border: 2px solid rgb(136, 176, 75);
+}
+#insurance{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 25px;
+    padding: 1%;
+    background: white;
+    width: 40%;
+    overflow-y: auto;
+}
+#insurance a{
+    text-decoration: none;
+    color: black;
+}
+#insurance p{
+    font-size: 18px;
+}
+.title-with-icon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

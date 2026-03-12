@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Болезнь{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/visit.css' %}">
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'profile' user.id %}">
+  <div id="back-btn">
+    <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<div id="visit-info">
+    <h1>Посещение</h1>
+    <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>
+    <p>Медцентр: <a href="{% url 'medcenter' visit.medcenter.id %}">{{ visit.medcenter.name }}</a> &middot; {{ visit.medcenter.get_type_display }} &middot; {{ visit.medcenter.link }}</p>
+    <p>Принимающий врач: {{ visit.doctor.first_name }} {{ visit.doctor.last_name }}</p>
+    <p>Причина: {{ visit.cause }}</p>
+    <p>Описание: {{ visit.desc }}</p>
+    <p>Дата: {{ visit.date }}</p>
+</div>
+<h1 style="text-align: center;">Все посещения</h1>
+<div id="visits">
+{% for vis in visits %}
+<div id="visit">
+  {% if vis.id == visit.id %}
+  <p><b>{{ vis.cause }}</b> (Текущая)</p>
+  <p>{{ vis.medcenter.name }} &middot; {{ vis.date }}</p>
+  {% else %}
+  <p><b>{{ vis.cause }}</b></p>
+  <p>{{ vis.medcenter.name }} &middot; {{ vis.date }}</p>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

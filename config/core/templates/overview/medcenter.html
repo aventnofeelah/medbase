@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}MedBase &middot; Медцентр{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/overview/medcenter.css' %}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+{% endblock %}
+
+{% block content %}
+<div id="medcenter-info">
+    <div id="map">
+
+    </div>
+    <div id="info">
+        <h1>{{ medcenter.name }}</h1>
+        <p>Город: {{ medcenter.city }}</p>
+        <p>{{ medcenter.get_type_display }}</p>
+        <p>Адрес: {{ medcenter.address }}</p>
+        <p>{{ medcenter.link }}</p>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+    var map = L.map('map').setView([51.505, -0.09], 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.marker([51.5, -0.09]).addTo(map)
+        .bindPopup("{{ name }}")
+        .openPopup();
+</script>
+{% endblock %}
