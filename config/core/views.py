@@ -29,9 +29,18 @@ def home_view(request):
         actions = Action.objects.filter(
             Q(user=request.user) | Q(patient=request.user)
         ).order_by('-created_at')
+    doc_count = User.objects.filter(role='doc').count()
+    user_count = User.objects.filter(role='user').count()
+    med_count = MedCenter.objects.count()
+    rec_count = Disease.objects.count() + Visit.objects.count() + Surgery.objects.count() + Vaccination.objects.count() + Drugs.objects.count() + Test.objects.count()
     return render(request, 'home.html', {'form' : form,
                                          'found' : found,
-                                         'actions' : actions})
+                                         'actions' : actions,
+                                         "doc_count": doc_count,
+                                         "user_count": user_count,
+                                         "med_count": med_count,
+                                         'rec_count' : rec_count})
+                                         
 
 def login_view(request):
     if request.method == "POST":
@@ -805,3 +814,6 @@ def medcenter_view(request, medcenter_id):
     medcenter = get_object_or_404(MedCenter, id=medcenter_id)
     return render(request, 'overview/medcenter.html', {'medcenter' : medcenter,
                                                        'name' : medcenter.name})
+
+def privacy_policy_view(request):
+    return render(request, 'privacy_policy.html')

@@ -1,0 +1,12 @@
+#main{
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 1%;
+    border-radius: 25px;
+    background: white;
+    width: 70%;
+    margin: 0 auto;
+    margin-top: 1%;
+}
+#main p{
+    font-size: 18px;
+}

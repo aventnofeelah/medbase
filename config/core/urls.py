@@ -34,7 +34,8 @@ from core.views import (
     test_add_view,
     confirm_test_view,
     test_code_view,
-    medcenter_view
+    medcenter_view,
+    privacy_policy_view
 )
 urlpatterns = [
     path('', home_view, name='home'),
@@ -54,6 +55,7 @@ urlpatterns = [
     path('profile/<int:user_id>/codes/surgery/', surgery_code_view, name='surgery_code'),
     path('profile/<int:user_id>/action/<int:action_id>/', action_view, name='action'),
     path('medcenter/<int:medcenter_id>/', medcenter_view, name='medcenter'),
+    path('privacy-policy/', privacy_policy_view, name='privacy_policy'),
 
     path('profile/<int:user_id>/add_allergy/', allergy_add_view, name='allergy_add'),
     path('profile/<int:user_id>/add_allergy/confirm/', confirm_allergy_view, name='confirm_allergy'),

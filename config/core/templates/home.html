@@ -43,9 +43,11 @@
     <div class="links-block">
       <a>FAQ</a>
     </div>
-    <div class="links-block">
-      <a>Политика конфиденциальности</a>
-    </div>
+    <a href="{% url 'privacy_policy' %}">
+      <div class="links-block">
+        <p>Политика конфиденциальности</p>
+      </div>
+    </a>
   </div>
   {% if user.is_authenticated %}
   <div id="history-actions">
@@ -91,19 +93,19 @@
     <hr style="border: 2px solid rgb(136, 176, 75); border-radius: 5px; width: 30%;">
     <div id="count">
       <div class="count-div">
-        <b>1567</b>
+        <b>{{ doc_count }}</b>
         <p>врачей</p>
       </div>
       <div class="count-div">
-        <b>12845</b>
+        <b>{{ user_count }}</b>
         <p>пользователей</p>
       </div>
       <div class="count-div">
-        <b>304</b>
+        <b>{{ med_count }}</b>
         <p>медцентров</p>
       </div>
       <div class="count-div">
-        <b>3977</b>
+        <b>{{ rec_count }}</b>
         <p>записей добавлено</p>
       </div>
     </div>
