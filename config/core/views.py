@@ -1,12 +1,46 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, get_user_model
-from .forms import LoginForm, SearchUserForm
-from .models import UserHealth, Surgery, Disease, Vaccination, Visit, Drugs, Test, TestFiles, Action, MedCenter
-from .forms import AddSurgeryForm, ConfirmCodeForm, AddAllergyForm, AddDiseaseForm, AddVaccinationForm, AddVisitForm, AddDrugForm, AddTestFileForm, AddTestForm
-from django.core.cache import cache
 import os, random
+
+from django.core.cache import cache
 from django.db.models import Q
 from django.utils import timezone
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout, get_user_model
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from django.core.files import File
+
+from .forms import (LoginForm, 
+                    SearchUserForm, 
+                    EditSurgeryForm, 
+                    EditDiseaseForm, 
+                    EditVaccinationForm, 
+                    EditVisitForm,
+                    EditAllergyForm,
+                    EditTestForm,
+                    EditTestFileForm)
+
+from .models import (UserHealth, 
+                     Surgery, 
+                     Disease, 
+                     Vaccination, 
+                     Visit, 
+                     Drugs, 
+                     Test, 
+                     TestFiles, 
+                     Action, 
+                     MedCenter)
+
+from .forms import (AddSurgeryForm, 
+                    ConfirmCodeForm, 
+                    AddAllergyForm, 
+                    AddDiseaseForm, 
+                    AddVaccinationForm, 
+                    AddVisitForm, 
+                    AddDrugForm, 
+                    AddTestFileForm, 
+                    AddTestForm,
+                    EditDrugForm)
+from .models import DISEASE_LOCALIZATION, DISEASE_ORIGIN, DISEASE_STIMULANT, DISEASE_PROCESS
 
 # Create your views here.s
 
@@ -157,6 +191,13 @@ def test_view(request, user_id, test_id):
                                                   'tests' : tests,
                                                   'files' : files})
 
+def codes_view(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    if not request.user.is_authenticated or request.user != user:
+        return redirect('home')
+    return render(request, 'codes.html')
+
+#ADD/EDIT SURGERY
 def surgery_add_view(request, user_id):
     if not request.user.is_authenticated or request.user.role != 'doc':
         return redirect('home')
@@ -171,6 +212,7 @@ def surgery_add_view(request, user_id):
                 "disease": form.cleaned_data['disease'],
                 "medcenter": request.user.medcenter,
                 "desc": form.cleaned_data['desc'],
+                "ac_type": "add",
                 "date": timezone.now()
             }, timeout=300)
 
@@ -179,6 +221,30 @@ def surgery_add_view(request, user_id):
         form = AddSurgeryForm()
     return render(request, 'add/surgery_add.html', {'form' : form,
                                                     'user' : user})
+def surgery_edit_view(request, user_id, surgery_id):
+    surgery = get_object_or_404(Surgery, id=surgery_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditSurgeryForm(request.POST, instance=surgery)
+        if form.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"surgery_code_{user.id}", code, timeout=300)
+            cache.set(f"surgery_data_{user_id}", {
+                "name": form.cleaned_data['name'],
+                "disease": form.cleaned_data['disease'],
+                "medcenter": request.user.medcenter,
+                "desc": form.cleaned_data['desc'],
+                "ac_type": "edit",
+                "surgery_id": surgery.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_surgery', user_id=user.id)
+    else:
+        form = EditSurgeryForm(instance=surgery)
+    
+    return render(request, 'edit/surgery_edit.html', {'form' : form,
+                                                      'user' : user})
 
 def confirm_surgery_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -212,22 +278,38 @@ def confirm_surgery_view(request, user_id):
                                                                         'data' : data,
                                                                         'user' : user,
                                                                         'error' : error})
-            
             userh = get_object_or_404(UserHealth, user=user)
-            surgery = Surgery.objects.create(
-                user=userh,
-                name=data["name"],
-                disease=data["disease"],
-                desc=data["desc"],
-                medcenter=request.user.medcenter
-            )
-            Action.objects.create(
-                user=request.user,
-                name=data["name"],
-                patient=user,
-                medcenter=request.user.medcenter,
-                surgery=surgery
-            )
+            if data["ac_type"] == "add":
+                surgery = Surgery.objects.create(
+                    user=userh,
+                    name=data["name"],
+                    disease=data["disease"],
+                    desc=data["desc"],
+                    medcenter=request.user.medcenter
+                )
+                Action.objects.create(
+                    user=request.user,
+                    name=data["name"],
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    surgery=surgery,
+                    ac_type=data["ac_type"]
+                )
+            else:
+                surgery = Surgery.objects.get(id=data["surgery_id"])
+                surgery.name = data["name"]
+                surgery.disease = data["disease"]
+                surgery.desc = data["desc"]
+                surgery.save()
+
+                Action.objects.create(
+                    user=request.user,
+                    name=data["name"],
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    surgery=surgery,
+                    ac_type=data["ac_type"]
+                )
             cache.delete(f"surgery_code_{user_id}")
             cache.delete(f"surgery_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -236,12 +318,6 @@ def confirm_surgery_view(request, user_id):
     return render(request, 'confirm/confirm_surgery.html', {'form' : form,
                                                             'data' : data,
                                                             'user' : user})
-
-def codes_view(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    if not request.user.is_authenticated or request.user != user:
-        return redirect('home')
-    return render(request, 'codes.html')
 
 def surgery_code_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -262,6 +338,7 @@ def action_view(request, user_id, action_id):
                                                     'action' : action,
                                                     'actions' : actions})
 
+#ALLERGY ADD/EDIT
 def allergy_add_view(request, user_id):
     if not request.user.is_authenticated or request.user.role != 'doc':
         return redirect('home')
@@ -278,7 +355,9 @@ def allergy_add_view(request, user_id):
                 "type_localization": form.cleaned_data['type_localization'],
                 "type_process": form.cleaned_data['type_process'],
                 "medcenter": request.user.medcenter,
+                "ac_type": "add",
                 "desc": form.cleaned_data['desc'],
+                "date": timezone.now()
             }, timeout=300)
 
             return redirect('confirm_allergy', user_id=user.id)
@@ -286,6 +365,35 @@ def allergy_add_view(request, user_id):
         form = AddAllergyForm()
     return render(request, 'add/allergy_add.html', {'form' : form,
                                                     'user' : user})
+
+def allergy_edit_view(request, user_id, allergy_id):
+    allergy = get_object_or_404(Disease, id=allergy_id, type_stimulant="allergic")
+    print(allergy)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditAllergyForm(request.POST, instance=allergy)
+        if form.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"allergy_code_{user.id}", code, timeout=300)
+            cache.set(f"allergy_data_{user_id}", {
+                "name": form.cleaned_data['name'],
+                "icd_code": form.cleaned_data['icd_code'],
+                "type_origin": form.cleaned_data['type_origin'],
+                "type_localization": form.cleaned_data['type_localization'],
+                "type_process": form.cleaned_data['type_process'],
+                "medcenter": request.user.medcenter,
+                "desc": form.cleaned_data['desc'],
+                "ac_type": "edit",
+                "allergy_id": allergy.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_allergy', user_id=user.id)
+    else:
+        form = EditAllergyForm(instance=allergy)
+    
+    return render(request, 'edit/allergy_edit.html', {'form' : form,
+                                                      'user' : user})
 
 def confirm_allergy_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -321,23 +429,42 @@ def confirm_allergy_view(request, user_id):
                                                                         'error' : error})
             
             userh = get_object_or_404(UserHealth, user=user)
-            allergy = Disease.objects.create(
-                user = userh,
-                name = data["name"],
-                icd_code = data["icd_code"],
-                type_origin = data["type_origin"],
-                type_localization = data["type_localization"],
-                type_process = data["type_process"],
-                type_stimulant = 'allergic',
-                desc = data["desc"]
-            )
-            Action.objects.create(
-                name=data["name"],
-                user=request.user,
-                patient=user,
-                medcenter=request.user.medcenter,
-                allergy=allergy
-            )
+            if data["ac_type"] == "add":
+                allergy = Disease.objects.create(
+                    user = userh,
+                    name = data["name"],
+                    icd_code = data["icd_code"],
+                    type_origin = data["type_origin"],
+                    type_localization = data["type_localization"],
+                    type_process = data["type_process"],
+                    type_stimulant = 'allergic',
+                    desc = data["desc"],
+                )
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    allergy=allergy,
+                    ac_type="add"
+                )
+            else:
+                allergy = Disease.objects.get(id=data["allergy_id"])
+                allergy.name = data["name"]
+                allergy.icd_code = data["icd_code"]
+                allergy.type_localization = data["type_localization"]
+                allergy.type_origin = data["type_origin"]
+                allergy.type_process = data["type_process"]
+                allergy.desc = data["desc"]
+                allergy.save() 
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    allergy=allergy,
+                    ac_type="edit"
+                )
             cache.delete(f"allergy_code_{user_id}")
             cache.delete(f"allergy_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -355,7 +482,7 @@ def allergy_code_view(request, user_id):
     data = cache.get(f"allergy_data_{user_id}")
     return render(request, 'codes/allergy_code.html', {'code' : code,
                                                        'data' : data})
-
+#ADD/EDIT DISEASE
 def disease_add_view(request, user_id):
     if not request.user.is_authenticated or request.user.role != 'doc':
         return redirect('home')
@@ -373,6 +500,7 @@ def disease_add_view(request, user_id):
                 "type_process": form.cleaned_data['type_process'],
                 "type_stimulant": form.cleaned_data['type_stimulant'],
                 "medcenter": request.user.medcenter,
+                "ac_type": "add",
                 "desc": form.cleaned_data['desc'],
             }, timeout=300)
 
@@ -381,6 +509,34 @@ def disease_add_view(request, user_id):
         form = AddDiseaseForm()
     return render(request, 'add/disease_add.html', {'form' : form,
                                                     'user' : user})
+def disease_edit_view(request, user_id, disease_id):
+    disease = get_object_or_404(Disease, id=disease_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditDiseaseForm(request.POST, instance=disease)
+        if form.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"disease_code_{user.id}", code, timeout=300)
+            cache.set(f"disease_data_{user_id}", {
+                "name": form.cleaned_data['name'],
+                "icd_code": form.cleaned_data['icd_code'],
+                "type_origin": form.cleaned_data['type_origin'],
+                "type_localization": form.cleaned_data['type_localization'],
+                "type_process": form.cleaned_data['type_process'],
+                "type_stimulant": form.cleaned_data['type_stimulant'],
+                "medcenter": request.user.medcenter,
+                "desc": form.cleaned_data['desc'],
+                "ac_type": "edit",
+                "disease_id": disease.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_disease', user_id=user.id)
+    else:
+        form = EditDiseaseForm(instance=disease)
+    
+    return render(request, 'edit/disease_edit.html', {'form' : form,
+                                                      'user' : user})
 
 def confirm_disease_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -416,23 +572,44 @@ def confirm_disease_view(request, user_id):
                                                                         'error' : error})
             
             userh = get_object_or_404(UserHealth, user=user)
-            disease = Disease.objects.create(
-                user = userh,
-                name = data["name"],
-                icd_code = data["icd_code"],
-                type_origin = data["type_origin"],
-                type_localization = data["type_localization"],
-                type_process = data["type_process"],
-                type_stimulant = data['type_stimulant'],
-                desc = data["desc"]
-            )
-            Action.objects.create(
-                name=data["name"],
-                user=request.user,
-                patient=user,
-                medcenter=request.user.medcenter,
-                disease=disease
-            )
+            if data["ac_type"] == "add":
+                disease = Disease.objects.create(
+                    user = userh,
+                    name = data["name"],
+                    icd_code = data["icd_code"],
+                    type_origin = data["type_origin"],
+                    type_localization = data["type_localization"],
+                    type_process = data["type_process"],
+                    type_stimulant = data['type_stimulant'],
+                    desc = data["desc"]
+                )
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    disease=disease,
+                    ac_type=data["ac_type"]
+                )
+            else:
+                disease = Disease.objects.get(id=data["disease_id"])
+                disease.name = data["name"]
+                disease.icd_code = data["icd_code"]
+                disease.type_localization = data["type_localization"]
+                disease.type_origin = data["type_origin"]
+                disease.type_stimulant = data["type_stimulant"]
+                disease.type_process = data["type_process"]
+                disease.desc = data["desc"]
+                disease.save()
+
+                Action.objects.create(
+                    user=request.user,
+                    name=data["name"],
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    disease=disease,
+                    ac_type=data["ac_type"]
+                )
             cache.delete(f"disease_code_{user_id}")
             cache.delete(f"disease_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -451,6 +628,7 @@ def disease_code_view(request, user_id):
     return render(request, 'codes/disease_code.html', {'code' : code,
                                                        'data' : data})
 
+#ADD/EDIT VACCINATION
 def vaccination_add_view(request, user_id):
     if not request.user.is_authenticated or request.user.role != 'doc':
         return redirect('home')
@@ -464,7 +642,8 @@ def vaccination_add_view(request, user_id):
                 "name": form.cleaned_data['name'],
                 "vac_name": form.cleaned_data['vac_name'],
                 "desc": form.cleaned_data['desc'],
-                "date": form.cleaned_data['date']
+                "date": form.cleaned_data['date'],
+                "ac_type": "add"
             }, timeout=300)
 
             return redirect('confirm_vaccination', user_id=user.id)
@@ -472,6 +651,31 @@ def vaccination_add_view(request, user_id):
         form = AddVaccinationForm()
     return render(request, 'add/vaccination_add.html', {'form' : form,
                                                         'user' : user})
+
+def vaccination_edit_view(request, user_id, vaccination_id):
+    vaccination = get_object_or_404(Vaccination, id=vaccination_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditVaccinationForm(request.POST, instance=vaccination)
+        if form.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"vaccination_code_{user.id}", code, timeout=300)
+            cache.set(f"vaccination_data_{user_id}", {
+                "name": form.cleaned_data['name'],
+                "vac_name": form.cleaned_data['vac_name'],
+                "medcenter": request.user.medcenter,
+                "desc": form.cleaned_data['desc'],
+                "ac_type": "edit",
+                "vaccination_id": vaccination.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_vaccination', user_id=user.id)
+    else:
+        form = EditVaccinationForm(instance=vaccination)
+    
+    return render(request, 'edit/vaccination_edit.html', {'form' : form,
+                                                          'user' : user})
 
 def confirm_vaccination_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -505,23 +709,39 @@ def confirm_vaccination_view(request, user_id):
                                                                             'data' : data,
                                                                             'user' : user,
                                                                             'error' : error})
-            
             userh = get_object_or_404(UserHealth, user=user)
-            vaccination = Vaccination.objects.create(
-                user = userh,
-                name = data["name"],
-                vac_name = data["vac_name"],
-                medcenter=request.user.medcenter,
-                desc = data["desc"],
-                date = data["date"]
-            )
-            Action.objects.create(
-                name=data["name"],
-                user=request.user,
-                patient=user,
-                medcenter=request.user.medcenter,
-                vaccination=vaccination
-            )
+            if data["ac_type"] == "add":
+                vaccination = Vaccination.objects.create(
+                    user = userh,
+                    name = data["name"],
+                    vac_name = data["vac_name"],
+                    medcenter=request.user.medcenter,
+                    desc = data["desc"],
+                    date = data["date"]
+                )
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    ac_type=data["ac_type"],
+                    vaccination=vaccination
+                )
+            else:
+                vaccination = Vaccination.objects.get(id=data["vaccination_id"])
+                vaccination.name = data["name"]
+                vaccination.vac_name = data["vac_name"]
+                vaccination.desc = data["desc"]
+                vaccination.save()
+                
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    ac_type=data["ac_type"],
+                    vaccination=vaccination
+                )
             cache.delete(f"vaccination_code_{user_id}")
             cache.delete(f"vaccination_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -540,6 +760,7 @@ def vaccination_code_view(request, user_id):
     return render(request, 'codes/vaccination_code.html', {'code' : code,
                                                            'data' : data})
 
+#ADD/EDIT VISIT
 def visit_add_view(request, user_id):
     if not request.user.is_authenticated or request.user.role != 'doc':
         return redirect('home')
@@ -551,7 +772,8 @@ def visit_add_view(request, user_id):
             cache.set(f"visit_code_{user.id}", code, timeout=300)
             cache.set(f"visit_data_{user_id}", {
                 "cause": form.cleaned_data['cause'],
-                "desc": form.cleaned_data['desc']
+                "desc": form.cleaned_data['desc'],
+                "ac_type": "add"
             }, timeout=300)
 
             return redirect('confirm_visit', user_id=user.id)
@@ -559,6 +781,30 @@ def visit_add_view(request, user_id):
         form = AddVisitForm()
     return render(request, 'add/visit_add.html', {'form' : form,
                                                   'user' : user})
+
+def visit_edit_view(request, user_id, visit_id):
+    visit = get_object_or_404(Visit, id=visit_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditVisitForm(request.POST, instance=visit)
+        if form.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"visit_code_{user.id}", code, timeout=300)
+            cache.set(f"visit_data_{user_id}", {
+                "cause": form.cleaned_data['cause'],
+                "desc": form.cleaned_data['desc'],
+                "medcenter": request.user.medcenter,
+                "ac_type": "edit",
+                "visit_id": visit.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_visit', user_id=user.id)
+    else:
+        form = EditVisitForm(instance=visit)
+    
+    return render(request, 'edit/visit_edit.html', {'form' : form,
+                                                    'user' : user})
 
 def confirm_visit_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -594,20 +840,36 @@ def confirm_visit_view(request, user_id):
                                                                       'error' : error})
             
             userh = get_object_or_404(UserHealth, user=user)
-            visit = Visit.objects.create(
-                user = userh,
-                medcenter=request.user.medcenter,
-                doctor = request.user,
-                desc = data["desc"],
-                cause = data["cause"]
-            )
-            Action.objects.create(
-                name=data["cause"],
-                user=request.user,
-                patient=user,
-                medcenter=request.user.medcenter,
-                visit=visit
-            )
+            if data["ac_type"] == "add":
+                visit = Visit.objects.create(
+                    user = userh,
+                    medcenter=request.user.medcenter,
+                    doctor = request.user,
+                    desc = data["desc"],
+                    cause = data["cause"]
+                )
+                Action.objects.create(
+                    name=data["cause"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    visit=visit,
+                    ac_type=data["ac_type"]
+                )
+            else:
+                visit = Visit.objects.get(id=data["visit_id"])
+                visit.cause = data["cause"]
+                visit.desc = data["desc"]
+                visit.save()
+                
+                Action.objects.create(
+                    name=data["cause"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    visit=visit,
+                    ac_type=data["ac_type"]
+                )
             cache.delete(f"visit_code_{user_id}")
             cache.delete(f"visit_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -638,6 +900,7 @@ def drug_add_view(request, user_id):
             cache.set(f"drug_data_{user_id}", {
                 "name": form.cleaned_data['name'],
                 "disease": form.cleaned_data['disease'],
+                "ac_type": "add",
                 "desc" : form.cleaned_data['desc']
             }, timeout=300)
 
@@ -646,6 +909,30 @@ def drug_add_view(request, user_id):
         form = AddDrugForm()
     return render(request, 'add/drug_add.html', {'form' : form,
                                                  'user' : user})
+
+def drug_edit_view(request, user_id, drug_id):
+    drug = get_object_or_404(Drugs, id=drug_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditDrugForm(request.POST, instance=drug)
+        if form.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"drug_code_{user.id}", code, timeout=300)
+            cache.set(f"drug_data_{user_id}", {
+                "name": form.cleaned_data['name'],
+                "disease": form.cleaned_data['disease'],
+                "desc": form.cleaned_data['desc'],
+                "medcenter": request.user.medcenter,
+                "ac_type": "edit",
+                "drug_id": drug.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_drug', user_id=user.id)
+    else:
+        form = EditDrugForm(instance=drug)
+    return render(request, 'edit/drug_edit.html', {'form' : form,
+                                                   'user' : user})
 
 def confirm_drug_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -681,19 +968,36 @@ def confirm_drug_view(request, user_id):
                                                                      'error' : error})
             
             userh = get_object_or_404(UserHealth, user=user)
-            drug = Drugs.objects.create(
-                user = userh,
-                name = data["name"],
-                disease  = data["disease"],
-                desc = data["desc"]
-            )
-            Action.objects.create(
-                name=data["name"],
-                user=request.user,
-                patient=user,
-                medcenter=request.user.medcenter,
-                drug=drug
-            )
+            if data["ac_type"] == "add":
+                drug = Drugs.objects.create(
+                    user = userh,
+                    name = data["name"],
+                    disease  = data["disease"],
+                    desc = data["desc"]
+                )
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    drug=drug,
+                    ac_type=data["ac_type"]
+                )
+            else:
+                drug = Drugs.objects.get(id=data["drug_id"])
+                drug.name = data["name"]
+                drug.disease = data["disease"]
+                drug.desc = data["desc"]
+                drug.save()
+                #optimize and use only once
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    drug=drug,
+                    ac_type=data["ac_type"]
+                )
             cache.delete(f"drug_code_{user_id}")
             cache.delete(f"drug_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -712,6 +1016,7 @@ def drug_code_view(request, user_id):
     return render(request, 'codes/drug_code.html', {'code' : code,
                                                     'data' : data})
 
+#ADD/EDIT TEST
 def test_add_view(request, user_id):
     if not request.user.is_authenticated or request.user.role != 'doc':
         return redirect('home')
@@ -720,14 +1025,20 @@ def test_add_view(request, user_id):
         form = AddTestForm(request.POST)
         form_file = AddTestFileForm(request.POST, request.FILES)
         if form.is_valid() and form_file.is_valid():
+            files_list = form.cleaned_data['files']
+            saved_paths = []
+            for f in files_list:
+                filename = f"tmp/{user_id}_{timezone.now().strftime('%Y%m%d%H%M%S')}_{f.name}"
+                path = default_storage.save(filename, ContentFile(f.read()))
+                saved_paths.append(path)
             code = str(random.randint(100000, 999999))
             cache.set(f"test_code_{user.id}", code, timeout=300)
             cache.set(f"test_data_{user_id}", {
                 "name": form.cleaned_data['name'],
                 "type": form.cleaned_data['type'],
+                "medcenter": request.user.medcenter,
                 "desc" : form.cleaned_data['desc'],
-
-                "files": form_file.cleaned_data['files'],
+                "ac_type": "add",
             }, timeout=300)
 
             return redirect('confirm_test', user_id=user.id)
@@ -737,6 +1048,32 @@ def test_add_view(request, user_id):
     return render(request, 'add/test_add.html', {'form' : form,
                                                  'form_file' : form_file,
                                                  'user' : user})
+
+def test_edit_view(request, user_id, test_id):
+    test = get_object_or_404(Test, id=test_id)
+    user = get_object_or_404(User, id=user_id)
+    
+    if request.method == "POST":
+        form = EditTestForm(request.POST, instance=test)
+        form_file = EditTestFileForm(request.POST, instance=test)
+        if form.is_valid() and form_file.is_valid():
+            code = str(random.randint(100000, 999999))
+            cache.set(f"test_code_{user.id}", code, timeout=300)
+            cache.set(f"test_data_{user_id}", {
+                "name": form.cleaned_data['name'],
+                "type": form.cleaned_data['type'],
+                "desc" : form.cleaned_data['desc'],
+                "ac_type": "add",
+                "ac_type": "edit",
+                "test_id": test.id,
+                "date": timezone.now()
+            }, timeout=300)
+            return redirect('confirm_test', user_id=user.id)
+    else:
+        form = EditTestForm(instance=test)
+        form_file = EditTestFileForm(instance=test)
+    return render(request, 'edit/test_edit.html', {'form' : form,
+                                                   'user' : user})
 
 def confirm_test_view(request, user_id):
     if not request.user.medcenter or request.user.role != 'doc':
@@ -772,26 +1109,54 @@ def confirm_test_view(request, user_id):
                                                                      'error' : error})
             
             userh = get_object_or_404(UserHealth, user=user)
-            test = Test.objects.create(
-                user = userh,
-                name = data["name"],
-                medcenter=request.user.medcenter,
-                type  = data["type"],
-                desc = data["desc"]
-            )
-            files = data['files']
-            for f in files:
-                TestFiles.objects.create(
-                    test=test,
-                    file=f
+            if data["ac_type"] == "add":
+                test = Test.objects.create(
+                    user = userh,
+                    name = data["name"],
+                    medcenter=request.user.medcenter,
+                    type  = data["type"],
+                    desc = data["desc"]
                 )
-            Action.objects.create(
-                name=data["name"],
-                user=request.user,
-                patient=user,
-                medcenter=request.user.medcenter,
-                test=test
-            )
+                file_paths = data.get("file_paths", [])
+                #async with huey
+                for path in file_paths:
+                    if default_storage.exists(path):
+                        with default_storage.open(path) as f:
+                            clean_name = os.path.basename(path)
+                            TestFiles.objects.create(
+                                test=test,
+                                file=File(f, name=clean_name)
+                            )
+                        default_storage.delete(path)
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    test=test,
+                    ac_type=data["ac_type"]
+                )
+            else:
+                test = Test.objects.get(id=data["test_id"])
+                test.name = data["name"]
+                test.type = data["type"]
+                test.desc = data["desc"]
+                test.save()
+
+                t_files = data["files"]
+                for f in files:
+                    TestFiles.objects.create(
+                        test=test,
+                        file=f
+                    )
+                Action.objects.create(
+                    name=data["name"],
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    test=test,
+                    ac_type=data["ac_type"]
+                )
             cache.delete(f"test_code_{user_id}")
             cache.delete(f"test_data_{user_id}")
             return redirect('profile', user_id=user.id)
@@ -814,6 +1179,6 @@ def medcenter_view(request, medcenter_id):
     medcenter = get_object_or_404(MedCenter, id=medcenter_id)
     return render(request, 'overview/medcenter.html', {'medcenter' : medcenter,
                                                        'name' : medcenter.name})
-
+#Privacy policy, FAQ, support
 def privacy_policy_view(request):
     return render(request, 'privacy_policy.html')

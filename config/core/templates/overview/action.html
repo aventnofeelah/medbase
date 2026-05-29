@@ -38,10 +38,11 @@
 {% elif action.test %}
 <h1>Анализы &middot; {{ action.name }}</h1>
 {% endif %}
-<p>Кем добавлено: {{ action.user.first_name }} {{ action.user.last_name }} &middot; {{ action.user.iin }} </p>
+<p>Кем добавлено/отредактировано: {{ action.user.first_name }} {{ action.user.last_name }} &middot; {{ action.user.iin }} </p>
 <p>Кому: {{ action.patient.first_name }} {{ action.patient.last_name }} &middot; {{ action.patient.iin }}</p>
 <p>Медцентр: <a href="{% url 'medcenter' action.medcenter.id %}">{{ action.medcenter.name }}</a> &middot; {{ action.medcenter.link }}</p>
-<p>Дата добавления: {{ action.created_at }}</p>
+<p>Тип: {{ action.get_ac_type_display }}</p>
+<p>Дата добавления/редактирования: {{ action.created_at }}</p>
 </div>
 <h1 style="text-align: center;">Все действия</h1>
 <div id="actions">
@@ -75,7 +76,7 @@
     {% if ac.test %}
     <b>Анализы &middot; {{ac.test.name }}</b>
     {% endif %}
-    <p>Кем добавлено: {{ action.user.first_name }} {{ action.user.last_name }}</p>
+    <p>Кем добавлено/отредактировано: {{ action.user.first_name }} {{ action.user.last_name }}</p>
     <p>Кому: {{ action.patient.first_name }} {{ action.patient.last_name }}</p>
     {% if ac.id == action.id %}
     <b>Текущая</b>

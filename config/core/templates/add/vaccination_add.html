@@ -16,7 +16,7 @@
 <div id="main">
   <h1 style="text-align: center;">Добавление вакцинации</h1>
   <h2 style="text-align: center;">{{ user.first_name }} {{ user.last_name }} &middot; {{ request.user.medcenter.name }}</h2>
-  <hr style="width: 10%; margin: 1% auto; border: 3px solid rgb(136, 176, 75);">
+  <hr style="width: 10%; margin: 1% auto; border: 3px solid rgb(136, 176, 75); border-radius: 5px;">
   <form method="post">
     {% csrf_token %}
     <div class="form-group">

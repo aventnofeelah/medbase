@@ -14,7 +14,11 @@
   </div>
 </a>
 <div id="main">
+  {% if data.ac_type == 'add' %}
   <h1>Подтвердите действие &middot; Добавление операции</h1>
+  {% else %}
+  <h1>Подтвердите действие &middot; Редактирование операции</h1>
+  {% endif %}
   <div style="font-size: 18px;">
     <form method="post">
       {% csrf_token %}

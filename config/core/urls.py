@@ -35,49 +35,74 @@ from core.views import (
     confirm_test_view,
     test_code_view,
     medcenter_view,
-    privacy_policy_view
+    privacy_policy_view,
+    surgery_edit_view,
+    disease_edit_view,
+    vaccination_edit_view,
+    visit_edit_view,
+    allergy_edit_view,
+    drug_edit_view,
+    test_edit_view
 )
 urlpatterns = [
     path('', home_view, name='home'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('profile/<int:user_id>/', profile_view, name='profile'),
+    path('medcenter/<int:medcenter_id>/', medcenter_view, name='medcenter'),
+
+    #Overview
     path('profile/<int:user_id>/surgery/<int:surgery_id>/', surgery_view, name='surgery'),
     path('profile/<int:user_id>/allergy/<int:allergy_id>/', allergy_view, name='allergy'),
-    path('profile/<int:user_id>/disease/<int:disease_id>/', disease_view, name='disease'),
     path('profile/<int:user_id>/vaccination/<int:vaccination_id>/', vaccination_view, name='vaccination'),
     path('profile/<int:user_id>/visit/<int:visit_id>/', visit_view, name='visit'),
     path('profile/<int:user_id>/drug/<int:drug_id>/', drug_view, name='drug'),
     path('profile/<int:user_id>/test/<int:test_id>/', test_view, name='test'),
-    path('profile/<int:user_id>/add_surgery/', surgery_add_view, name='surgery_add'),
-    path('profile/<int:user_id>/add_surgery/confirm/', confirm_surgery_view, name='confirm_surgery'),
+    
     path('profile/<int:user_id>/codes/', codes_view, name='codes'),
-    path('profile/<int:user_id>/codes/surgery/', surgery_code_view, name='surgery_code'),
     path('profile/<int:user_id>/action/<int:action_id>/', action_view, name='action'),
-    path('medcenter/<int:medcenter_id>/', medcenter_view, name='medcenter'),
     path('privacy-policy/', privacy_policy_view, name='privacy_policy'),
 
+    #Surgeries
+    path('profile/<int:user_id>/add_surgery/', surgery_add_view, name='surgery_add'),
+    path('profile/<int:user_id>/add_surgery/confirm/', confirm_surgery_view, name='confirm_surgery'),
+    path('profile/<int:user_id>/surgery/<int:surgery_id>/edit/', surgery_edit_view, name='surgery_edit'),
+    path('profile/<int:user_id>/codes/surgery/', surgery_code_view, name='surgery_code'),
+
+    #Allergies
     path('profile/<int:user_id>/add_allergy/', allergy_add_view, name='allergy_add'),
     path('profile/<int:user_id>/add_allergy/confirm/', confirm_allergy_view, name='confirm_allergy'),
     path('profile/<int:user_id>/codes/allergy/', allergy_code_view, name='allergy_code'),
+    path('profile/<int:user_id>/allergy/<int:allergy_id>/edit/', allergy_edit_view, name='allergy_edit'),
 
+    #Diseases
+    path('profile/<int:user_id>/disease/<int:disease_id>/', disease_view, name='disease'),
     path('profile/<int:user_id>/add_disease/', disease_add_view, name='disease_add'),
     path('profile/<int:user_id>/add_disease/confirm/', confirm_disease_view, name='confirm_disease'),
     path('profile/<int:user_id>/codes/disease/', disease_code_view, name='disease_code'),
+    path('profile/<int:user_id>/disease/<int:disease_id>/edit/', disease_edit_view, name='disease_edit'),
 
+    #Vaccinations
     path('profile/<int:user_id>/add_vaccination/', vaccination_add_view, name='vaccination_add'),
     path('profile/<int:user_id>/add_vaccination/confirm/', confirm_vaccination_view, name='confirm_vaccination'),
     path('profile/<int:user_id>/codes/vaccination/', vaccination_code_view, name='vaccination_code'),
+    path('profile/<int:user_id>/vaccination/<int:vaccination_id>/edit/', vaccination_edit_view, name='vaccination_edit'),
 
+    #Visits
     path('profile/<int:user_id>/add_visit/', visit_add_view, name='visit_add'),
     path('profile/<int:user_id>/add_visit/confirm/', confirm_visit_view, name='confirm_visit'),
     path('profile/<int:user_id>/codes/visit/', visit_code_view, name='visit_code'),
+    path('profile/<int:user_id>/visit/<int:visit_id>/edit/', visit_edit_view, name='visit_edit'),
 
+    #Drugs
     path('profile/<int:user_id>/add_drug/', drug_add_view, name='drug_add'),
     path('profile/<int:user_id>/add_drug/confirm/', confirm_drug_view, name='confirm_drug'),
     path('profile/<int:user_id>/codes/drug/', drug_code_view, name='drug_code'),
+    path('profile/<int:user_id>/drug/<int:drug_id>/edit/', drug_edit_view, name='drug_edit'),
 
+    #Tests
     path('profile/<int:user_id>/add_test/', test_add_view, name='test_add'),
     path('profile/<int:user_id>/add_test/confirm/', confirm_test_view, name='confirm_test'),
     path('profile/<int:user_id>/codes/test/', test_code_view, name='test_code'),
+    path('profile/<int:user_id>/test/<int:test_id>/edit/', test_edit_view, name='test_edit')
 ]

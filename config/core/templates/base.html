@@ -63,9 +63,12 @@
         {% else %}
         {% if request.user.role == 'doc' and request.user.medcenter %}
         <a href="{% url 'medcenter' request.user.medcenter.id %}" style="margin-left: auto; margin-right: 10px;">{{ request.user.medcenter.name }}</a>
-        {% endif %}
         <a style="margin-right: 10px;" href="{% url 'profile' request.user.id %}">{{ request.user.first_name }} {{ request.user.last_name }}</a>
         <a href="{% url 'logout' %}">Выйти</a>
+        {% else %}
+        <a style="margin-left: auto; margin-right: 10px;" href="{% url 'profile' request.user.id %}">{{ request.user.first_name }} {{ request.user.last_name }}</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+        {% endif %}
         {% endif %}
     </header>
     <main>
@@ -73,7 +76,7 @@
     </main>
     <footer>
          <div>
-            <p>&copy; MedBase 2025. Все права защищены.</p>
+            <p>&copy; MedBase 2026. Все права защищены.</p>
          </div>
     </footer>
 </body>

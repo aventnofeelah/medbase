@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}MedBase &middot; Болезнь{% endblock %}
+{% block title %}MedBase &middot; Вакцинация{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'css/overview/vaccination.css' %}">
@@ -11,6 +11,11 @@
 <a href="{% url 'profile' user.id %}">
   <div id="back-btn">
     <img src="{% static 'images/arrow_back.png' %}">
+  </div>
+</a>
+<a href="{% url 'vaccination_edit' user.id vaccination.id %}">
+  <div id="edit-btn">
+    <img src="{% static 'images/edit.png' %}">
   </div>
 </a>
 <div id="vaccination-info">

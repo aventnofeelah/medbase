@@ -13,6 +13,11 @@
     <img src="{% static 'images/arrow_back.png' %}">
   </div>
 </a>
+<a href="{% url 'drug_edit' user.id drug.id %}">
+  <div id="edit-btn">
+    <img src="{% static 'images/edit.png' %}">
+  </div>
+</a>
 <div id="drug-info">
     <h1>{{ drug.name }}</h1>
     <p>Пользователь: {{ user.first_name }} {{ user.last_name }} &middot; {{ user.iin }}</p>

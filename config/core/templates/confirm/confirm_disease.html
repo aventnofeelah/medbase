@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}MedBase &middot; Подтверждение добавления болезни{% endblock %}
+{% block title %}MedBase &middot; Подтверждение добавления заболевания{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'css/confirm.css' %}">
@@ -14,7 +14,11 @@
   </div>
 </a>
 <div id="main">
-  <h1>Подтвердите действие &middot; Добавление болезни</h1>
+  {% if data.ac_type == 'add' %}
+  <h1>Подтвердите действие &middot; Добавление заболевания</h1>
+  {% else %}
+  <h1>Подтвердите действие &middot; Редактирование информации о заболевании</h1>
+  {% endif %}
   <div style="font-size: 18px;">
     <form method="post">
       {% csrf_token %}

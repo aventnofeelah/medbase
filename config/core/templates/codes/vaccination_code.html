@@ -13,10 +13,16 @@
   <button onclick="location.reload(true)">Обновить <img src="{% static 'images/reload.png' %}" style="vertical-align: middle;"></button>
   <div id="code">
     {% if code %}
-    <p>Код подтверждения: {{ code }}</p>
+    <p>Код подтверждения: <b>{{ code }}</b></p>
     <p>Название вакцинации: {{ data.name }}</p>
     <p>Вакцина: {{ data.vac_name }}</p>
     <p>Описание: {{ data.desc }}</p>
+    <p>Тип: 
+        {% if data.ac_type == 'add' %} Добавление 
+        {% elif data.ac_type == 'edit' %} Редактирование 
+        {% else %} {{ data.ac_type }} 
+        {% endif %}
+    </p>
     <p>Время: {{ data.date }}</p>
     {% else %}
     <p>Нет кодов подтверждения. Попробуйте обновить страницу.</p>

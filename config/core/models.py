@@ -174,7 +174,10 @@ GENDER = [
     ("male", "Мужчина"),
     ("female", "Женщина")
 ]
-
+ACTION_TYPE = [
+    ("edit", "Редактирование"),
+    ("add", "Добавление")
+]
 class CustomUserManager(BaseUserManager):
     def create_user(self, iin, password=None, **extra_fields):
         if not iin:
@@ -473,6 +476,7 @@ class Action(models.Model):
     visit = models.ForeignKey(Visit, null=True, blank=True, on_delete=models.SET_NULL, related_name='visit_actions')
     drug = models.ForeignKey(Drugs, null=True, blank=True, on_delete=models.SET_NULL, related_name='drug_actions')
     test = models.ForeignKey(Test, null=True, blank=True, on_delete=models.SET_NULL, related_name='test_actions')
+    ac_type = models.CharField(max_length=5, default="add", choices=ACTION_TYPE, verbose_name="Тип действия")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="Дата добавления")
 
     #change to 100000 -> 100001

@@ -120,3 +120,90 @@ class AddTestFileForm(forms.Form):
                 )
 
         return cleaned_data
+    
+class EditSurgeryForm(forms.ModelForm):
+    class Meta:
+        model = Surgery
+        fields = ['name', 'disease', 'desc']
+        labels = {'name' : 'Название операции', 'disease' : 'Выберите болезнь', 'desc' : 'Описание'}
+
+class EditDiseaseForm(forms.ModelForm):
+    class Meta:
+        model = Disease
+        fields = ['name', 'icd_code', 'type_origin', 'type_localization', 'type_stimulant', 'type_process', 'desc']
+        labels = {'name' : 'Название заболевания', 'icd_code' : 'Код по МКБ-10/11','type_origin' : 'Происхождение и природа', 'type_localization' : 'Локализация болезни',
+                  'type_stimulant' : 'Возбудитель', 'type_process' : 'Лечение', 'desc' : 'Описание'}
+        
+class EditVaccinationForm(forms.ModelForm):
+    class Meta:
+        model = Vaccination
+        fields = ['name', 'vac_name', 'desc']
+        labels = {'name' : 'Название вакцинации', 'vac_name' : 'Производитель вакцины', 'desc' : 'Описание'}
+
+class EditVisitForm(forms.ModelForm):
+    class Meta:
+        model = Visit
+        fields = ['cause', 'desc']
+        labels = {'cause' : 'Причина посещения', 'desc' : 'Описание'}
+
+class EditAllergyForm(forms.ModelForm):
+    class Meta:
+        model = Disease
+        fields = ['name', 'icd_code', 'type_origin', 'type_localization', 'type_process', 'desc']
+        labels = {'name' : 'Название заболевания', 'icd_code' : 'Код по МКБ-10/11','type_origin' : 'Происхождение и природа', 'type_localization' : 'Локализация болезни',
+                'type_process' : 'Лечение', 'desc' : 'Описание'}
+        
+class EditDrugForm(forms.ModelForm):
+    class Meta:
+        model = Drugs
+        fields = ['name', 'disease', 'desc']
+        labels = {'name': 'Название препарата', 'disease': 'Принимается по болезни', 'desc': 'Дополнительное описание'}
+
+class EditTestForm(forms.ModelForm):
+    class Meta:
+        model = Test
+        fields = ['name', 'type', 'desc']
+        labels = {'name' : 'Название анализа/исследования', 'type' : 'Тип анализа/исследования', 'desc' : 'Описание'}
+
+class EditTestFileForm(forms.Form):
+    files = forms.FileField(
+        widget=MultipleFileInput(),
+        required=False,
+        label='Выберите файл(-ы):'
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+
+        files = self.files.getlist('files')
+
+        allowed_types = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'text/plain',
+
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/tiff',
+
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/x-rar-compressed',
+            'application/x-7z-compressed',
+
+            'application/dicom',
+            'application/dicom+json',
+            'application/octet-stream',
+
+            'application/octet-stream'
+        ]
+
+        for f in files:
+            if f.content_type not in allowed_types:
+                raise ValidationError(
+                    f"Недопустимый файл: {f.name} ({f.content_type})"
+                )
+
+        return cleaned_data
