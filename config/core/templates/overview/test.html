@@ -13,7 +13,7 @@
     <img src="{% static 'images/arrow_back.png' %}">
   </div>
 </a>
-<a href="{% url 'disease_edit' user.id disease.id %}">
+<a href="{% url 'test_edit' user.id test.id %}">
   <div id="edit-btn">
     <img src="{% static 'images/edit.png' %}">
   </div>
@@ -29,7 +29,7 @@
 <div id="files">
     {% for fl in files %}
     <div id="file-div">
-      <p><b>{{ fl.name }}</b></p>
+      <p><b>{{ fl.filename }}</b></p>
       <p>{{ fl.extension }} &middot; {{ fl.file_size }}</p>
       <a style="text-decoration: none; color:black;" href="{{ fl.file.url }}" download>Загрузить<img src="{% static 'images/download.png' %}" style="vertical-align: middle;"></a>
     </div>

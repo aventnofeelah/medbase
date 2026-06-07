@@ -16,8 +16,7 @@ from .forms import (LoginForm,
                     EditVaccinationForm, 
                     EditVisitForm,
                     EditAllergyForm,
-                    EditTestForm,
-                    EditTestFileForm)
+                    EditTestForm,)
 
 from .models import (UserHealth, 
                      Surgery, 
@@ -40,7 +39,6 @@ from .forms import (AddSurgeryForm,
                     AddTestFileForm, 
                     AddTestForm,
                     EditDrugForm)
-from .models import DISEASE_LOCALIZATION, DISEASE_ORIGIN, DISEASE_STIMULANT, DISEASE_PROCESS
 
 # Create your views here.s
 
@@ -114,6 +112,11 @@ def profile_view(request, user_id):
                                             'tests' : tests,
                                             'insurance' : insurance})
 
+def medcenter_view(request, medcenter_id):
+    medcenter = get_object_or_404(MedCenter, id=medcenter_id)
+    return render(request, 'overview/medcenter.html', {'medcenter' : medcenter,
+                                                       'name' : medcenter.name})
+
 def surgery_view(request, user_id, surgery_id):
     user = get_object_or_404(User, id=user_id)
     userh = get_object_or_404(UserHealth, user=user)
@@ -180,16 +183,18 @@ def drug_view(request, user_id, drug_id):
                                                   'user' : user})
 
 def test_view(request, user_id, test_id):
-    user = get_object_or_404(UserHealth, user=user_id)
-    test = get_object_or_404(Test, user=user, id=test_id)
-    tests = Test.objects.filter(user=user)
+    user = get_object_or_404(User, id=user_id)
+    userh = get_object_or_404(UserHealth, user=user)
+    test = get_object_or_404(Test, user=userh, id=test_id)
+    tests = Test.objects.filter(user=userh)
 
     files = TestFiles.objects.filter(test=test)
     for f in files:
         f.extension = os.path.splitext(f.file.name)[1]
     return render(request, 'overview/test.html', {'test' : test,
                                                   'tests' : tests,
-                                                  'files' : files})
+                                                  'files' : files,
+                                                  'user' : user})
 
 def codes_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -878,7 +883,7 @@ def confirm_visit_view(request, user_id):
     return render(request, 'confirm/confirm_visit.html', {'form' : form,
                                                           'data' : data,
                                                           'user' : user})
-
+#ADD/EDIT DRUG
 def visit_code_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if not request.user.is_authenticated or request.user != user:
@@ -989,7 +994,6 @@ def confirm_drug_view(request, user_id):
                 drug.disease = data["disease"]
                 drug.desc = data["desc"]
                 drug.save()
-                #optimize and use only once
                 Action.objects.create(
                     name=data["name"],
                     user=request.user,
@@ -1025,12 +1029,13 @@ def test_add_view(request, user_id):
         form = AddTestForm(request.POST)
         form_file = AddTestFileForm(request.POST, request.FILES)
         if form.is_valid() and form_file.is_valid():
-            files_list = form.cleaned_data['files']
+            files_list = form_file.cleaned_data['files']
             saved_paths = []
             for f in files_list:
                 filename = f"tmp/{user_id}_{timezone.now().strftime('%Y%m%d%H%M%S')}_{f.name}"
                 path = default_storage.save(filename, ContentFile(f.read()))
                 saved_paths.append(path)
+
             code = str(random.randint(100000, 999999))
             cache.set(f"test_code_{user.id}", code, timeout=300)
             cache.set(f"test_data_{user_id}", {
@@ -1039,6 +1044,8 @@ def test_add_view(request, user_id):
                 "medcenter": request.user.medcenter,
                 "desc" : form.cleaned_data['desc'],
                 "ac_type": "add",
+                "date": timezone.now(),
+                "file_paths": saved_paths
             }, timeout=300)
 
             return redirect('confirm_test', user_id=user.id)
@@ -1050,20 +1057,21 @@ def test_add_view(request, user_id):
                                                  'user' : user})
 
 def test_edit_view(request, user_id, test_id):
+    if not request.user.is_authenticated or request.user.role != 'doc':
+        return redirect('home')
+    
     test = get_object_or_404(Test, id=test_id)
     user = get_object_or_404(User, id=user_id)
-    
     if request.method == "POST":
         form = EditTestForm(request.POST, instance=test)
-        form_file = EditTestFileForm(request.POST, instance=test)
-        if form.is_valid() and form_file.is_valid():
+        if form.is_valid():
             code = str(random.randint(100000, 999999))
             cache.set(f"test_code_{user.id}", code, timeout=300)
             cache.set(f"test_data_{user_id}", {
                 "name": form.cleaned_data['name'],
                 "type": form.cleaned_data['type'],
                 "desc" : form.cleaned_data['desc'],
-                "ac_type": "add",
+                "medcenter": request.user.medcenter,
                 "ac_type": "edit",
                 "test_id": test.id,
                 "date": timezone.now()
@@ -1071,7 +1079,6 @@ def test_edit_view(request, user_id, test_id):
             return redirect('confirm_test', user_id=user.id)
     else:
         form = EditTestForm(instance=test)
-        form_file = EditTestFileForm(instance=test)
     return render(request, 'edit/test_edit.html', {'form' : form,
                                                    'user' : user})
 
@@ -1142,13 +1149,6 @@ def confirm_test_view(request, user_id):
                 test.type = data["type"]
                 test.desc = data["desc"]
                 test.save()
-
-                t_files = data["files"]
-                for f in files:
-                    TestFiles.objects.create(
-                        test=test,
-                        file=f
-                    )
                 Action.objects.create(
                     name=data["name"],
                     user=request.user,
@@ -1172,13 +1172,11 @@ def test_code_view(request, user_id):
         return redirect('home')
     code = cache.get(f"test_code_{user_id}")
     data = cache.get(f"test_data_{user_id}")
+    print("CODE", code)
+    print("DATA:", data)
     return render(request, 'codes/test_code.html', {'code' : code,
                                                     'data' : data})
 
-def medcenter_view(request, medcenter_id):
-    medcenter = get_object_or_404(MedCenter, id=medcenter_id)
-    return render(request, 'overview/medcenter.html', {'medcenter' : medcenter,
-                                                       'name' : medcenter.name})
 #Privacy policy, FAQ, support
 def privacy_policy_view(request):
     return render(request, 'privacy_policy.html')

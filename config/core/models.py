@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import os
 import random
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager
@@ -428,6 +429,10 @@ class TestFiles(models.Model):
             return f"{size / 1024:.1f} KB"
         else:
             return f"{size / (1024 ** 2):.1f} MB"
+    
+    @property
+    def filename(self):
+        return os.path.basename(self.file.name)
     
     class Meta:
         verbose_name = "Файл"

@@ -78,9 +78,21 @@ class AddTestForm(forms.ModelForm):
 class MultipleFileInput(FileInput):
     allow_multiple_selected = True
 
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
+    
 class AddTestFileForm(forms.Form):
-    files = forms.FileField(
-        widget=MultipleFileInput(),
+    files = MultipleFileField(
         required=False,
         label='Выберите файл(-ы):'
     )
@@ -164,46 +176,3 @@ class EditTestForm(forms.ModelForm):
         model = Test
         fields = ['name', 'type', 'desc']
         labels = {'name' : 'Название анализа/исследования', 'type' : 'Тип анализа/исследования', 'desc' : 'Описание'}
-
-class EditTestFileForm(forms.Form):
-    files = forms.FileField(
-        widget=MultipleFileInput(),
-        required=False,
-        label='Выберите файл(-ы):'
-    )
-    
-    def clean(self):
-        cleaned_data = super().clean()
-
-        files = self.files.getlist('files')
-
-        allowed_types = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
-
-            'image/jpeg',
-            'image/png',
-            'image/webp',
-            'image/tiff',
-
-            'application/zip',
-            'application/x-zip-compressed',
-            'application/x-rar-compressed',
-            'application/x-7z-compressed',
-
-            'application/dicom',
-            'application/dicom+json',
-            'application/octet-stream',
-
-            'application/octet-stream'
-        ]
-
-        for f in files:
-            if f.content_type not in allowed_types:
-                raise ValidationError(
-                    f"Недопустимый файл: {f.name} ({f.content_type})"
-                )
-
-        return cleaned_data
