@@ -24,11 +24,29 @@
     <p>Тип анализа: {{ test.get_type_display }}</p>
     <p>Описание: {{ test.desc }}</p>
 </div>
+<button id="add-files-btn" onclick="showForm()">Добавить файлы<img src="{% static 'images/add.png' %}" style="vertical-align: middle;"></button>
+<div id="add-files-form">
+  <p style="font-size: 20px;"><img src="{% static 'images/exclamation.png' %}" style="vertical-align: middle;">При загрузке файлов действие будет сохранено в историю</p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      {{ form.files.label_tag }}
+      {{ form.files }}
+    </div>
+    <button id="submit-btn" type="submit" disabled>Добавить</button>
+  </form>
+</div>
 {% if files %}
 <h1 style="text-align: center;">Файлы</h1>
 <div id="files">
     {% for fl in files %}
     <div id="file-div">
+      <form method="post" action="{% url 'delete_file' fl.id %}" onsubmit="return confirm('Вы уверены, что хотите удалить этот файл? Удаление файла будет записано в историю');">
+        {% csrf_token %}
+        <button type="submit" id="delete-btn">
+          <img src="{% static 'images/delete.png' %}" style="vertical-align: middle;">
+        </button>
+      </form>
       <p><b>{{ fl.filename }}</b></p>
       <p>{{ fl.extension }} &middot; {{ fl.file_size }}</p>
       <a style="text-decoration: none; color:black;" href="{{ fl.file.url }}" download>Загрузить<img src="{% static 'images/download.png' %}" style="vertical-align: middle;"></a>
@@ -50,4 +68,25 @@
 </div>
 {% endfor %}
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  function showForm(){
+    document.getElementById("add-files-form").style.display = "block";
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+      const fileInput = document.getElementById("id_files");
+      const submitBtn = document.getElementById("submit-btn");
+
+      if (fileInput && submitBtn) {
+          fileInput.addEventListener("change", function () {
+              if (fileInput.files.length > 0) {
+                  submitBtn.removeAttribute("disabled");
+              } else {
+                  submitBtn.setAttribute("disabled", "true");
+              }
+          });
+      }
+  });
+</script>
 {% endblock %}

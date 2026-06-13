@@ -24,6 +24,7 @@
 
 {% elif action.disease %}
 <h1>Болезнь &middot; {{ action.name }}</h1>
+<a href="{% url 'disease' action.patient.id action.disease.id %}">Ссылка на объект</a>
 
 {% elif action.vaccination %}
 <h1>Вакцинация &middot; {{ action.name }}</h1>
@@ -31,17 +32,25 @@
 
 {% elif action.visit %}
 <h1>Посещение &middot; {{ action.name }}</h1>
+<a href="{% url 'visit' action.patient.id action.visit.id %}">Ссылка на объект</a>
 
 {% elif action.drug %}
 <h1>Препарат &middot; {{ action.name }}</h1>
+<a href="{% url 'drug' action.patient.id action.drug.id %}">Ссылка на объект</a>
 
 {% elif action.test %}
-<h1>Анализы &middot; {{ action.name }}</h1>
+<h1>Анализ/исследование &middot; {{ action.name }}</h1>
+<a href="{% url 'test' action.patient.id action.test.id %}">Ссылка на объект</a>
 {% endif %}
 <p>Кем добавлено/отредактировано: {{ action.user.first_name }} {{ action.user.last_name }} &middot; {{ action.user.iin }} </p>
 <p>Кому: {{ action.patient.first_name }} {{ action.patient.last_name }} &middot; {{ action.patient.iin }}</p>
 <p>Медцентр: <a href="{% url 'medcenter' action.medcenter.id %}">{{ action.medcenter.name }}</a> &middot; {{ action.medcenter.link }}</p>
+{% if action.files %}
+<p>Изменения файлов: </p>
+<p>{{ action.files }}</p>
+{% else %}
 <p>Тип: {{ action.get_ac_type_display }}</p>
+{% endif %}
 <p>Дата добавления/редактирования: {{ action.created_at }}</p>
 </div>
 <h1 style="text-align: center;">Все действия</h1>
@@ -74,7 +83,7 @@
     {% endif %}
 
     {% if ac.test %}
-    <b>Анализы &middot; {{ac.test.name }}</b>
+    <b>Анализ/исследование &middot; {{ac.test.name }}</b>
     {% endif %}
     <p>Кем добавлено/отредактировано: {{ action.user.first_name }} {{ action.user.last_name }}</p>
     <p>Кому: {{ action.patient.first_name }} {{ action.patient.last_name }}</p>

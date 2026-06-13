@@ -2,12 +2,14 @@ import os, random
 
 from django.core.cache import cache
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, get_user_model
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.core.files import File
+from django.views.decorators.http import require_POST
 
 from .forms import (LoginForm, 
                     SearchUserForm, 
@@ -189,12 +191,60 @@ def test_view(request, user_id, test_id):
     tests = Test.objects.filter(user=userh)
 
     files = TestFiles.objects.filter(test=test)
-    for f in files:
-        f.extension = os.path.splitext(f.file.name)[1]
+    if files:
+        for f in files:
+            f.extension = os.path.splitext(f.file.name)[1]
+    if request.method == "POST":
+        form = AddTestFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            form_files = form.cleaned_data.get('files') or []
+            log_messages = []
+            for f in form_files:
+                log_messages.append(f"Добавление файла: {f.name}")
+                instance = TestFiles(test=test, file=f)
+                instance.save()
+                final_string = "; ".join(log_messages) + "."
+                Action.objects.create(
+                    name="Добавление файла(-ов)",
+                    user=request.user,
+                    patient=user,
+                    medcenter=request.user.medcenter,
+                    test=test,
+                    files=final_string
+                )
+
+            return HttpResponseRedirect(request.path)
+    else:
+        form = AddTestFileForm()
     return render(request, 'overview/test.html', {'test' : test,
                                                   'tests' : tests,
                                                   'files' : files,
-                                                  'user' : user})
+                                                  'user' : user,
+                                                  'form': form})
+
+@require_POST
+def delete_file_view(request, file_id):
+    file_obj = get_object_or_404(TestFiles, id=file_id)
+    
+    filename = file_obj.filename
+    test = file_obj.test
+    patient = test.user.user
+    
+    if file_obj.file:
+        file_obj.file.delete(save=False)
+    
+    file_obj.delete()
+    
+    Action.objects.create(
+        name="Удаление файла",
+        user=request.user,
+        patient=patient,
+        medcenter=request.user.medcenter,
+        test=test,
+        files=f"Удален файл: {filename}."
+    )
+    
+    return redirect(request.META.get('HTTP_REFERER', '/'))
 
 def codes_view(request, user_id):
     user = get_object_or_404(User, id=user_id)

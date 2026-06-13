@@ -42,7 +42,8 @@ from core.views import (
     visit_edit_view,
     allergy_edit_view,
     drug_edit_view,
-    test_edit_view
+    test_edit_view,
+    delete_file_view
 )
 urlpatterns = [
     path('', home_view, name='home'),
@@ -104,5 +105,6 @@ urlpatterns = [
     path('profile/<int:user_id>/add_test/', test_add_view, name='test_add'),
     path('profile/<int:user_id>/add_test/confirm/', confirm_test_view, name='confirm_test'),
     path('profile/<int:user_id>/codes/test/', test_code_view, name='test_code'),
-    path('profile/<int:user_id>/test/<int:test_id>/edit/', test_edit_view, name='test_edit')
+    path('profile/<int:user_id>/test/<int:test_id>/edit/', test_edit_view, name='test_edit'),
+    path('file/<int:file_id>/delete/', delete_file_view, name='delete_file'),
 ]

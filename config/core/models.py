@@ -434,6 +434,9 @@ class TestFiles(models.Model):
     def filename(self):
         return os.path.basename(self.file.name)
     
+    def __str__(self):
+        return f"{os.path.basename(self.file.name)}"
+    
     class Meta:
         verbose_name = "Файл"
         verbose_name_plural = "Файлы"
@@ -483,7 +486,7 @@ class Action(models.Model):
     test = models.ForeignKey(Test, null=True, blank=True, on_delete=models.SET_NULL, related_name='test_actions')
     ac_type = models.CharField(max_length=5, default="add", choices=ACTION_TYPE, verbose_name="Тип действия")
     created_at = models.DateTimeField(default=timezone.now, verbose_name="Дата добавления")
-
+    files = models.CharField(max_length=500, null=True, blank=True, verbose_name="Действия с файлами")
     #change to 100000 -> 100001
     #ALTER SEQUENCE appname_action_id_seq RESTART WITH 100000;
     #!!!
