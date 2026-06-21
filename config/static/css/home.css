@@ -51,20 +51,18 @@
 }
 #search-form-div{
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
     height: 80%;
 }
+#search-form-div form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+}
 .form-group{
     display: flex;
-    gap: 30px;
-}
-.form-group input{
-    padding: 3px;
-    font-size: 18px;
-    border-radius: 5px;
-    width: 105%;
+    gap: 110px;
 }
 .form-group button{
     font-size: 18px;
@@ -73,7 +71,7 @@
     border-radius: 5px;
     display: block;
     background: white;
-    padding: 3px;
+    padding: 4px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.171);
     transition: 0.3s box-shadow;
 }
@@ -123,6 +121,17 @@
 .count-div b{
     color: rgb(136, 176, 75);
     font-size: 19px;
+}
+
+/* select2 */
+#search-form-div .select2-container {
+    width: 300px !important;
+}
+.select2-container--default .select2-selection--single {
+    width: 300px !important;
+}
+.select2-dropdown {
+    width: 300px !important;
 }
 
 

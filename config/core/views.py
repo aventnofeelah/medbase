@@ -50,10 +50,11 @@ def home_view(request):
     form = SearchUserForm(request.GET or None)
     found = None
     if form.is_valid():
-        query_text = form.cleaned_data["iin"]
-        user = User.objects.filter(iin=query_text).first()
-        if user:
-            return redirect('profile', user_id=user.id)
+        # query_text = form.cleaned_data["iin"]
+        query_text = request.GET.get('id')
+        userh = User.objects.filter(id=query_text).first()
+        if userh:
+            return redirect('profile', user_id=userh.id)
         else:
             found = False
     else:

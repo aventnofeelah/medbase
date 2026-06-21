@@ -5,6 +5,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'css/home.css' %}">
+  {{ form.media.css }}
 {% endblock %}
 
 {% block content %}
@@ -18,12 +19,14 @@
   <div id="user-search">
     <h1>Найти пользователя <img src="{% static 'images/user.png' %}" style="vertical-align: middle;"></h1>
     <div id="search-form-div">
-      <form method="get" class="form-group">
-        {{ form }}
-        <button>Поиск</button>
-      </form>
+      <div style="display: flex; justify-content: center; margin: auto 0;">
+        <form method="get" class="form-group">
+          {{ form }}
+          <button>Поиск</button>
+        </form>
+      </div>
       {% if found == False %}
-      <p style="font-size: 18px; text-align: center; margin-top: 1%;">Пользователь с таким ИИН не найден</p>
+        <p style="font-size: 18px; text-align: center; ">Пользователь с таким ИИН не найден</p>
       {% endif %}
     </div>
   </div>
@@ -113,4 +116,17 @@
     <p></p>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{{ form.media.js }}
+
+<script>
+  $(document).ready(function() {
+      $('#id_id').on('select2:open', function (e) {
+          document.querySelector('.select2-search__field').focus();
+      });
+  });
+</script>
 {% endblock %}

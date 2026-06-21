@@ -3,6 +3,7 @@ from .models import User, Surgery, Disease, Vaccination, Visit, Drugs, Test, Tes
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from django.forms.widgets import FileInput
+from django_select2.forms import ModelSelect2Widget
 
 class LoginForm(forms.Form):
     iin_or_phone = forms.CharField(label='ИИН или номер телефона:')
@@ -19,8 +20,25 @@ class LoginForm(forms.Form):
         self.user = user
         return cleaned_data
     
+# class SearchUserForm(forms.Form):
+#     iin = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder' : 'Введите ИИН пользователя'}))
+
 class SearchUserForm(forms.Form):
-    iin = forms.CharField(label='', widget=forms.TextInput(attrs={'placeholder' : 'Введите ИИН пользователя'}))
+    id = forms.ModelChoiceField(
+        queryset=User.objects.all(),
+        label='',
+        widget=ModelSelect2Widget(
+            model=User,
+            search_fields=['iin__icontains',
+                           'first_name__icontains',
+                           'last_name__icontains'
+                          ],
+            attrs={
+                'data-placeholder': 'Введите ИИН пользователя',
+                'data-minimum-input-length': '1',
+            }
+        )
+    )
 
 class ConfirmCodeForm(forms.Form):
     code = forms.CharField(label='Введите код от пользователя')

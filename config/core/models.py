@@ -240,7 +240,7 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.iin} ({self.first_name} {self.last_name})"
 
     def get_age(self):
         today = date.today()
