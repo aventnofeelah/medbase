@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'core',
-    'django_select2'
+    'django_select2',
+    'huey.contrib.djhuey'
 ]
 
 MIDDLEWARE = [
@@ -151,7 +152,7 @@ AUTHENTICATION_BACKENDS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-#redis for prod
+# change to redis in production
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -159,3 +160,12 @@ CACHES = {
 }
 
 ADMIN_URL = os.getenv("ADMIN_URL")
+
+# change to redis in production
+HUEY = {
+    'huey_class': 'huey.MemoryHuey',
+    'immediate': False,
+    'consumer': {
+        'workers': 1,
+    },
+}
