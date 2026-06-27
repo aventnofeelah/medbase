@@ -180,9 +180,6 @@ ACTION_TYPE = [
     ("add", "Добавление")
 ]
 class CustomUserManager(BaseUserManager):
-    def _create_user_health(self, user):
-        UserHealth.objects.create(user=user)
-
     def create_user(self, iin, password=None, **extra_fields):
         if not iin:
             raise ValueError("Пользователь должен иметь ИИН")
@@ -190,7 +187,6 @@ class CustomUserManager(BaseUserManager):
         user = self.model(iin=iin, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
-        self._create_user_health(user)
         return user
 
     def create_superuser(self, iin, password=None, **extra_fields):
